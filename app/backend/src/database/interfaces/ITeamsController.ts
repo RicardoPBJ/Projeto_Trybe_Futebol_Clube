@@ -2,5 +2,6 @@ import { Request, Response } from 'express';
 import ITeams from './ITeams';
 
 export default interface ITeamsController {
-  getAll(req: Request, res: Response): Promise<Response<ITeams[]>>
+  findAll(req: Request, res: Response): Promise<Response<ITeams[]>>
+  findById(req: Request, res: Response): Promise<Response<ITeams>>
 }

@@ -1,5 +1,6 @@
 import ITeams from './ITeams';
 
 export default interface ITeamsService {
-  getAll(): Promise<ITeams[]>
+  findAll(): Promise<ITeams[]>
+  findById(id: number): Promise<ITeams | null>
 }

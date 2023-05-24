@@ -10,8 +10,14 @@ export default class TeamsController implements ITeamsController {
     this._TeamsService = new TeamsService();
   }
 
-  public async getAll(_req: Request, res: Response) {
-    const result = await this._TeamsService.getAll();
+  public async findAll(_req: Request, res: Response) {
+    const result = await this._TeamsService.findAll();
+    return res.status(200).json(result);
+  }
+
+  public async findById(req: Request, res: Response) {
+    const result = await this._TeamsService.findById(Number(req.params.id));
+    if (!result) return res.status(400).json({ message: 'Team not found' });
     return res.status(200).json(result);
   }
 }
