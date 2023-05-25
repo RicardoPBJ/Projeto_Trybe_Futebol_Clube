@@ -18,7 +18,9 @@ export default class LoginService implements ILoginService {
       return { status: 401, message: FORMAT_INVALID };
     }
 
-    const token = { token: tokenGenerator({ id: response.id, email }) };
+    const payload = { id: response.id, role: response.role, email };
+
+    const token = { token: tokenGenerator(payload) };
 
     return { status: 200, message: token };
   }
