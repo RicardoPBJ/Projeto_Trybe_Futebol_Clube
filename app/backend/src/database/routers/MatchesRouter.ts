@@ -11,5 +11,8 @@ route.get('/', (req: Request, res: Response) => Matches.findAll(req, res));
 route.patch('/:id/finish', tokenVerify, (req: Request, res: Response) => {
   Matches.finishMatch(req, res);
 });
+route.patch('/:id', tokenVerify, (req: Request, res: Response) => {
+  Matches.updateResult(req, res);
+});
 
 export default route;

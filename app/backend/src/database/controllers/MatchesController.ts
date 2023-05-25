@@ -31,4 +31,10 @@ export default class MatchesController implements IMatchesController {
 
     return res.status(200).json({ message: 'Finished' });
   }
+
+  public async updateResult(req: Request, res: Response) {
+    const result = await this._MatchesService.updateResult(req.body, +req.params.id);
+
+    return res.status(200).json(result);
+  }
 }
