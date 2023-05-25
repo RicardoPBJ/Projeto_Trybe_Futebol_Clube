@@ -30,7 +30,7 @@ describe('testando a rota /teams', () => {
     it('testando método findOne', async () => {
       sinon.stub(Teams, 'findOne').resolves(teams[0] as Teams);
   
-      const { body, status } = await chai.request(app).get('/teams/:id');
+      const { body, status } = await chai.request(app).get('/teams/1');
   
       expect(status).to.be.equal(200);
       expect(body).to.be.deep.equal(teams[0]);
