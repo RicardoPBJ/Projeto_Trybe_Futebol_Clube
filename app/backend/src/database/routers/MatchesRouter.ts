@@ -8,6 +8,9 @@ const route = Router();
 const Matches = new MatchesController();
 
 route.get('/', (req: Request, res: Response) => Matches.findAll(req, res));
+route.post('/', tokenVerify, (req: Request, res: Response) => {
+  Matches.addMatch(req, res);
+});
 route.patch('/:id/finish', tokenVerify, (req: Request, res: Response) => {
   Matches.finishMatch(req, res);
 });
