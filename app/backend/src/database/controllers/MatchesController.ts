@@ -21,4 +21,14 @@ export default class MatchesController implements IMatchesController {
 
     return res.status(200).json(result);
   }
+
+  public async finishMatch(req: Request, res: Response) {
+    const { id } = req.params;
+
+    const result = await this._MatchesService.finishMatch(+id);
+
+    if (result <= 0) return res.status(404).json({ message: 'None match updated' });
+
+    return res.status(200).json({ message: 'Finished' });
+  }
 }
