@@ -40,13 +40,10 @@ export default class LeaderBoardService implements ILeaderboardService {
     return result;
   }
 
-  private static homeTeam(team: Teams, matches: Matches[]) {
-    const teamInfo = new TeamAtributtes(team.teamName);
-
-    const homeMatches = matches.filter((match) => match.homeTeamId === team.id);
-    teamInfo.totalGames = homeMatches.length;
-
-    homeMatches.forEach(({ homeTeamGoals, awayTeamGoals }) => {
+  public static addAtributtes(matches: Matches[], teamName: string): TeamAtributtes {
+    const teamInfo = new TeamAtributtes(teamName);
+    teamInfo.totalGames = matches.length;
+    matches.forEach(({ homeTeamGoals, awayTeamGoals }) => {
       const { totalPoints, totalVictories, totalDraws, totalLosses } = LeaderBoardService
         .findMatchResult(homeTeamGoals, awayTeamGoals);
 
@@ -65,6 +62,21 @@ export default class LeaderBoardService implements ILeaderboardService {
     return teamInfo;
   }
 
+  private static findTeam(team: Teams, matches: Matches[], awayOrHome: string): TeamAtributtes {
+    if (awayOrHome === 'away') {
+      const awayMatches = matches.filter((match) => match.awayTeamId === team.id);
+      const result = LeaderBoardService.addAtributtes(awayMatches, team.teamName);
+      return result;
+    }
+
+    if (awayOrHome === 'home') {
+      const homeMatches = matches.filter((match) => match.homeTeamId === team.id);
+      const result = LeaderBoardService.addAtributtes(homeMatches, team.teamName);
+      return result;
+    }
+    return new TeamAtributtes(team.teamName);
+  }
+
   public static orderTeams(homeTeam: ILeaderboard[]) {
     const result = homeTeam.sort((teamA, teamB) => {
       if (teamA.totalPoints !== teamB.totalPoints) return teamB.totalPoints - teamA.totalPoints;
@@ -78,12 +90,12 @@ export default class LeaderBoardService implements ILeaderboardService {
     return result;
   }
 
-  public async findHome() {
+  public async findAwayOrHome(awayOrHome: string) {
     const allTeams = await this.findAllTeams();
     const allMatches = await this.findAllMatches();
 
-    const homeTeam = allTeams.map((team) => LeaderBoardService.homeTeam(team, allMatches));
+    const teams = allTeams.map((team) => LeaderBoardService.findTeam(team, allMatches, awayOrHome));
 
-    return LeaderBoardService.orderTeams(homeTeam);
+    return LeaderBoardService.orderTeams(teams);
   }
 }
