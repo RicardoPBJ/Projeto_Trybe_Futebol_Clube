@@ -4,6 +4,7 @@ import Matches from '../models/Matches';
 import Teams from '../models/Teams';
 import IMatchesResult from '../interfaces/IMatchResult';
 import TeamAtributtes from '../utils/TeamAtributtes';
+import ILeaderboard from '../interfaces/ILeaderboard';
 
 export default class LeaderBoardService implements ILeaderboardService {
   private modelTeam: ModelStatic<Teams> = Teams;
@@ -14,7 +15,7 @@ export default class LeaderBoardService implements ILeaderboardService {
     return result;
   }
 
-  private async findAllMatches(): Promise <Matches[]> {
+  private async findAllMatches(): Promise<Matches[]> {
     const result = await this.modelMatch.findAll({ where: { inProgress: false } });
     return result;
   }
@@ -48,7 +49,6 @@ export default class LeaderBoardService implements ILeaderboardService {
     homeMatches.forEach(({ homeTeamGoals, awayTeamGoals }) => {
       const { totalPoints, totalVictories, totalDraws, totalLosses } = LeaderBoardService
         .findMatchResult(homeTeamGoals, awayTeamGoals);
-      const { goalsFavor, goalsOwn, totalGames } = teamInfo;
 
       teamInfo.totalPoints += totalPoints;
       teamInfo.totalVictories += totalVictories;
@@ -58,10 +58,24 @@ export default class LeaderBoardService implements ILeaderboardService {
       teamInfo.goalsFavor += homeTeamGoals;
       teamInfo.goalsOwn += awayTeamGoals;
 
+      const { goalsFavor, goalsOwn, totalGames, totalPoints: totalP } = teamInfo;
       teamInfo.goalsBalance = goalsFavor - goalsOwn;
-      teamInfo.efficiency = parseInt(((totalPoints / (totalGames * 3)) * 100).toFixed(2), 10);
+      teamInfo.efficiency = +(((totalP / (totalGames * 3))) * 100).toFixed(2);
     });
     return teamInfo;
+  }
+
+  public static orderTeams(homeTeam: ILeaderboard[]) {
+    const result = homeTeam.sort((teamA, teamB) => {
+      if (teamA.totalPoints !== teamB.totalPoints) return teamB.totalPoints - teamA.totalPoints;
+      if (teamA.totalVictories !== teamB.totalVictories) {
+        return teamB.totalVictories - teamA.totalVictories;
+      }
+      if (teamA.goalsBalance !== teamB.goalsBalance) return teamB.goalsBalance - teamA.goalsBalance;
+      return teamB.goalsFavor - teamA.goalsFavor;
+    });
+
+    return result;
   }
 
   public async findHome() {
@@ -70,6 +84,6 @@ export default class LeaderBoardService implements ILeaderboardService {
 
     const homeTeam = allTeams.map((team) => LeaderBoardService.homeTeam(team, allMatches));
 
-    return homeTeam;
+    return LeaderBoardService.orderTeams(homeTeam);
   }
 }
