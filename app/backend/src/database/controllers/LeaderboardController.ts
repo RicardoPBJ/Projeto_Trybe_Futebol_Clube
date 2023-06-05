@@ -10,8 +10,8 @@ export default class LeaderboardController implements ILeaderboardController {
     this._leaderBoardService = new LeaderboardService();
   }
 
-  public async findAwayOrHome(_req: Request, res: Response, awayOrHome: string) {
-    const result = await this._leaderBoardService.findAwayOrHome(awayOrHome);
+  public async findAwayOrHome(req: Request, res: Response) {
+    const result = await this._leaderBoardService.findAwayOrHome(req.path);
 
     if (result.length === 0) {
       return res.status(404).json({ message: 'Something unexpected happened' });

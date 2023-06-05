@@ -5,11 +5,11 @@ const route = Router();
 const leaderBoardController = new LeaderboardController();
 
 route.get('/home', (req: Request, res: Response) => {
-  leaderBoardController.findAwayOrHome(req, res, 'home');
+  leaderBoardController.findAwayOrHome(req, res);
 });
 
 route.get('/away', (req: Request, res: Response) => {
-  leaderBoardController.findAwayOrHome(req, res, 'away');
+  leaderBoardController.findAwayOrHome(req, res);
 });
 
 export default route;

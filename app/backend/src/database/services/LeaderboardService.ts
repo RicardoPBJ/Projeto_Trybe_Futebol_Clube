@@ -6,6 +6,8 @@ import IMatchesResult from '../interfaces/IMatchResult';
 import TeamAtributtes from '../utils/TeamAtributtes';
 import ILeaderboard from '../interfaces/ILeaderboard';
 
+const away = '/away';
+
 export default class LeaderBoardService implements ILeaderboardService {
   private modelTeam: ModelStatic<Teams> = Teams;
   private modelMatch: ModelStatic<Matches> = Matches;
@@ -40,21 +42,18 @@ export default class LeaderBoardService implements ILeaderboardService {
     return result;
   }
 
-  public static addAtributtes(matches: Matches[], teamName: string): TeamAtributtes {
+  public static addHomeAtributtes(matches: Matches[], teamName: string) {
     const teamInfo = new TeamAtributtes(teamName);
     teamInfo.totalGames = matches.length;
     matches.forEach(({ homeTeamGoals, awayTeamGoals }) => {
       const { totalPoints, totalVictories, totalDraws, totalLosses } = LeaderBoardService
         .findMatchResult(homeTeamGoals, awayTeamGoals);
-
       teamInfo.totalPoints += totalPoints;
       teamInfo.totalVictories += totalVictories;
       teamInfo.totalDraws += totalDraws;
       teamInfo.totalLosses += totalLosses;
-
       teamInfo.goalsFavor += homeTeamGoals;
       teamInfo.goalsOwn += awayTeamGoals;
-
       const { goalsFavor, goalsOwn, totalGames, totalPoints: totalP } = teamInfo;
       teamInfo.goalsBalance = goalsFavor - goalsOwn;
       teamInfo.efficiency = +(((totalP / (totalGames * 3))) * 100).toFixed(2);
@@ -62,23 +61,58 @@ export default class LeaderBoardService implements ILeaderboardService {
     return teamInfo;
   }
 
-  private static findTeam(team: Teams, matches: Matches[], awayOrHome: string): TeamAtributtes {
-    if (awayOrHome === 'away') {
-      const awayMatches = matches.filter((match) => match.awayTeamId === team.id);
-      const result = LeaderBoardService.addAtributtes(awayMatches, team.teamName);
-      return result;
-    }
-
-    if (awayOrHome === 'home') {
-      const homeMatches = matches.filter((match) => match.homeTeamId === team.id);
-      const result = LeaderBoardService.addAtributtes(homeMatches, team.teamName);
-      return result;
-    }
-    return new TeamAtributtes(team.teamName);
+  public static addAwayAtributtes(matches: Matches[], teamName: string) {
+    const teamInfo = new TeamAtributtes(teamName);
+    teamInfo.totalGames = matches.length;
+    matches.forEach(({ homeTeamGoals, awayTeamGoals }) => {
+      const { totalPoints, totalVictories, totalDraws, totalLosses } = LeaderBoardService
+        .findMatchResult(awayTeamGoals, homeTeamGoals);
+      teamInfo.totalPoints += totalPoints;
+      teamInfo.totalVictories += totalVictories;
+      teamInfo.totalDraws += totalDraws;
+      teamInfo.totalLosses += totalLosses;
+      teamInfo.goalsFavor += awayTeamGoals;
+      teamInfo.goalsOwn += homeTeamGoals;
+      const { goalsFavor, goalsOwn, totalGames, totalPoints: totalP } = teamInfo;
+      teamInfo.goalsBalance = goalsFavor - goalsOwn;
+      teamInfo.efficiency = +(((totalP / (totalGames * 3))) * 100).toFixed(2);
+    });
+    return teamInfo;
   }
 
-  public static orderTeams(homeTeam: ILeaderboard[]) {
-    const result = homeTeam.sort((teamA, teamB) => {
+  private static findTeam(team: Teams, matches: Matches[], awayOrHome: string) {
+    console.log(awayOrHome);
+    console.log('cheguei');
+    if (awayOrHome === away) {
+      const awayMatches = matches.filter((match) => match.awayTeamId === team.id);
+      console.log('aki');
+      const result = LeaderBoardService.addAwayAtributtes(awayMatches, team.teamName);
+      console.log('chegou', result.totalPoints);
+      return result;
+    }
+    console.log('passei');
+    const homeMatches = matches.filter((match) => match.homeTeamId === team.id);
+    const result = LeaderBoardService.addHomeAtributtes(homeMatches, team.teamName);
+    return result;
+
+    // switch (awayOrHome) {
+    //   case 'away': {
+    //     const awayMatches = matches.filter((match) => match.awayTeamId === team.id);
+    //     const result = LeaderBoardService.addAtributtes(awayMatches, team.teamName, awayOrHome);
+    //     return result;
+    //   }
+    //   case 'home': {
+    //     const homeMatches = matches.filter((match) => match.homeTeamId === team.id);
+    //     const result = LeaderBoardService.addAtributtes(homeMatches, team.teamName, awayOrHome);
+    //     return result;
+    //   }
+    //   default:
+    //     break;
+    // }
+  }
+
+  public static orderTeams(awayOrHomeTeam: ILeaderboard[]) {
+    const result = awayOrHomeTeam.sort((teamA, teamB) => {
       if (teamA.totalPoints !== teamB.totalPoints) return teamB.totalPoints - teamA.totalPoints;
       if (teamA.totalVictories !== teamB.totalVictories) {
         return teamB.totalVictories - teamA.totalVictories;
@@ -96,6 +130,9 @@ export default class LeaderBoardService implements ILeaderboardService {
 
     const teams = allTeams.map((team) => LeaderBoardService.findTeam(team, allMatches, awayOrHome));
 
-    return LeaderBoardService.orderTeams(teams);
+    const result = LeaderBoardService.orderTeams(teams);
+    if (awayOrHome === away) return result;
+
+    return result;
   }
 }
