@@ -81,34 +81,14 @@ export default class LeaderBoardService implements ILeaderboardService {
   }
 
   private static findTeam(team: Teams, matches: Matches[], awayOrHome: string) {
-    console.log(awayOrHome);
-    console.log('cheguei');
     if (awayOrHome === away) {
       const awayMatches = matches.filter((match) => match.awayTeamId === team.id);
-      console.log('aki');
       const result = LeaderBoardService.addAwayAtributtes(awayMatches, team.teamName);
-      console.log('chegou', result.totalPoints);
       return result;
     }
-    console.log('passei');
     const homeMatches = matches.filter((match) => match.homeTeamId === team.id);
     const result = LeaderBoardService.addHomeAtributtes(homeMatches, team.teamName);
     return result;
-
-    // switch (awayOrHome) {
-    //   case 'away': {
-    //     const awayMatches = matches.filter((match) => match.awayTeamId === team.id);
-    //     const result = LeaderBoardService.addAtributtes(awayMatches, team.teamName, awayOrHome);
-    //     return result;
-    //   }
-    //   case 'home': {
-    //     const homeMatches = matches.filter((match) => match.homeTeamId === team.id);
-    //     const result = LeaderBoardService.addAtributtes(homeMatches, team.teamName, awayOrHome);
-    //     return result;
-    //   }
-    //   default:
-    //     break;
-    // }
   }
 
   public static orderTeams(awayOrHomeTeam: ILeaderboard[]) {
@@ -131,7 +111,6 @@ export default class LeaderBoardService implements ILeaderboardService {
     const teams = allTeams.map((team) => LeaderBoardService.findTeam(team, allMatches, awayOrHome));
 
     const result = LeaderBoardService.orderTeams(teams);
-    if (awayOrHome === away) return result;
 
     return result;
   }
