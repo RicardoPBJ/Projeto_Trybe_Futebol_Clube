@@ -80,6 +80,29 @@ export default class LeaderBoardService implements ILeaderboardService {
     return teamInfo;
   }
 
+  public static addAllClass(awayAtts: ILeaderboard[], homeAtts: ILeaderboard[]) {
+    const result = homeAtts.map((homeAtt) => {
+      const teamMatches = awayAtts.filter((awayTeam) => homeAtt.name === awayTeam.name);
+      const allAtt = new TeamAtributtes(homeAtt.name);
+      teamMatches.forEach((atualTeam) => {
+        allAtt.totalGames = atualTeam.totalGames + homeAtt.totalGames;
+        allAtt.totalPoints = atualTeam.totalPoints + homeAtt.totalPoints;
+        allAtt.totalVictories = atualTeam.totalVictories + homeAtt.totalVictories;
+        allAtt.totalLosses = atualTeam.totalLosses + homeAtt.totalLosses;
+        allAtt.totalDraws = atualTeam.totalDraws + homeAtt.totalDraws;
+        allAtt.goalsFavor = atualTeam.goalsFavor + homeAtt.goalsFavor;
+        allAtt.goalsOwn = atualTeam.goalsOwn + homeAtt.goalsOwn;
+
+        const { goalsFavor, goalsOwn, totalGames, totalPoints: totalP } = allAtt;
+
+        allAtt.goalsBalance = goalsFavor - goalsOwn;
+        allAtt.efficiency = +(((totalP / (totalGames * 3))) * 100).toFixed(2);
+      });
+      return allAtt;
+    });
+    return result;
+  }
+
   private static findTeam(team: Teams, matches: Matches[], awayOrHome: string) {
     if (awayOrHome === away) {
       const awayMatches = matches.filter((match) => match.awayTeamId === team.id);
@@ -100,6 +123,34 @@ export default class LeaderBoardService implements ILeaderboardService {
       if (teamA.goalsBalance !== teamB.goalsBalance) return teamB.goalsBalance - teamA.goalsBalance;
       return teamB.goalsFavor - teamA.goalsFavor;
     });
+
+    return result;
+  }
+
+  public async findAwayAndHome() {
+    const allTeams = await this.findAllTeams();
+    const allMatches = await this.findAllMatches();
+
+    const homeAtt = allTeams.map((team) => {
+      const homeMatches = allMatches.filter((match) => match.homeTeamId === team.id);
+
+      const result = LeaderBoardService
+        .addHomeAtributtes(homeMatches, team.teamName);
+
+      return result;
+    });
+
+    const awayAtt = allTeams.map((team) => {
+      const awayMatches = allMatches.filter((match) => match.awayTeamId === team.id);
+
+      const result = LeaderBoardService
+        .addAwayAtributtes(awayMatches, team.teamName);
+
+      return result;
+    });
+
+    const allClassification = LeaderBoardService.addAllClass(awayAtt, homeAtt);
+    const result = LeaderBoardService.orderTeams(allClassification);
 
     return result;
   }

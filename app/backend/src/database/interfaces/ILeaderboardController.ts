@@ -5,4 +5,6 @@ import ILeaderboard from './ILeaderboard';
 export default interface ILeaderBoardController {
   findAwayOrHome(req: Request, res: Response):
   Promise<Response<ILeaderboard[] | { message: string }>>;
+  findAwayAndHome(req: Request, res: Response):
+  Promise<Response<ILeaderboard[] | { message: string }>>;
 }
