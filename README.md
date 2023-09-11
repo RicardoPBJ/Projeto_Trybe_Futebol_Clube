@@ -1,7 +1,8 @@
 # Trybe Futebol Clube
 
 # Contexto
-Este projeto trata-se de uma ferramenta de back-office para armazenar e buscar dados de erros que ocorreram com clientes.
+
+O `TFC` é um site informativo sobre partidas e classificações de futebol! ⚽️
 
 ## Técnologias usadas
 
